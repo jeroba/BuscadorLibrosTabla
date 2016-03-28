@@ -9,36 +9,114 @@
 import UIKit
 import CoreData
 
+struct Seccion{
+    var nombreLibro: String
+    var isbn: String
+    var autores: String
+    var portada: UIImage
+    
+    init(nombreLibro: String, isbn: String, autores: String, portada: UIImage){
+        self.nombreLibro = nombreLibro
+        self.isbn = isbn
+        self.autores = autores
+        self.portada = portada
+    }
+}
+
 class MasterViewController: UITableViewController, NSFetchedResultsControllerDelegate {
 
     var detailViewController: DetailViewController? = nil
     var managedObjectContext: NSManagedObjectContext? = nil
-
+    var isbn = String()
+    var nombreLibro = String()
+    var secciones = [Seccion]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        self.navigationItem.leftBarButtonItem = self.editButtonItem()
-
-        let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewObject:")
-        self.navigationItem.rightBarButtonItem = addButton
-        if let split = self.splitViewController {
-            let controllers = split.viewControllers
-            self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
-        }
+        
     }
 
     override func viewWillAppear(animated: Bool) {
         self.clearsSelectionOnViewWillAppear = self.splitViewController!.collapsed
         super.viewWillAppear(animated)
     }
+    
+    
+    @IBAction func buscar(sender: UITextField) {
+        sincrono(sender.text!)
+        insertNewObject()
+        sender.text = nil
+        sender.resignFirstResponder()
+    }
+    
+    func sincrono(isbn:String){
+        let urls = "https://openlibrary.org/api/books?jscmd=data&format=json&bibkeys=ISBN:\(isbn)"
+        let url = NSURL(string: urls)
+        let datos:NSData? = NSData(contentsOfURL: url!)
+        if datos == nil{
+            let alert = UIAlertController(title: "Error", message: "La conexión a internet parece estar desactivada.", preferredStyle: .Alert)
+            let cancelAction = UIAlertAction(title: "Ok", style: .Cancel, handler: nil)
+            alert.addAction(cancelAction)
+            self.presentViewController(alert, animated: true, completion: nil)
+        }else{
+            let texto = NSString(data: datos!, encoding: NSUTF8StringEncoding)
+            if texto == "{}"{
+                let alert = UIAlertController(title: "Error", message: "Libro no encontrado.", preferredStyle: .Alert)
+                let cancelAction = UIAlertAction(title: "Ok", style: .Cancel, handler: nil)
+                alert.addAction(cancelAction)
+                self.presentViewController(alert, animated: true, completion: nil)
+            }else{
+                do{
+                    let json = try NSJSONSerialization.JSONObjectWithData(datos!, options: NSJSONReadingOptions.MutableLeaves)
+                    
+                    let isbnJson = json as! NSDictionary
+                    let isbnQuery = isbnJson["ISBN:\(isbn)"] as! NSDictionary
+                    let autores = isbnQuery["authors"] as! [NSDictionary]
+                    let portada = isbnQuery["cover"] as! NSDictionary?
+                    
+                    var portadaImagen = UIImage()
+                    
+                    if portada == nil{
+                        
+                    }else{
+                        let portadaMedium = portada!["medium"] as! NSString as String
+                        
+                        if let url  = NSURL(string: portadaMedium),
+                            data = NSData(contentsOfURL: url)
+                        {
+                            portadaImagen = UIImage(data: data)!
+                        }
+                    }
+                    
+                    
+                    let titulo = isbnQuery["title"] as! NSString as String
+                    var autoresString = ""
+                    for autor in autores{
+                        if autoresString == ""{
+                            autoresString += autor["name"] as! NSString as String
+                        }else{
+                            autoresString += ", "
+                            autoresString += autor["name"] as! NSString as String
+                        }
+                    }
+                    
+                    let seccion = Seccion(nombreLibro: titulo, isbn: isbn, autores: autoresString, portada: portadaImagen)
+                    secciones.append(seccion)
+                }catch _{
+                    
+                }
+            }
+        }
+    }
+
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
 
-    func insertNewObject(sender: AnyObject) {
+    func insertNewObject() {
         let context = self.fetchedResultsController.managedObjectContext
         let entity = self.fetchedResultsController.fetchRequest.entity!
         let newManagedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: context)
@@ -75,12 +153,11 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
     // MARK: - Table View
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return self.fetchedResultsController.sections?.count ?? 0
+        return self.secciones.count
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let sectionInfo = self.fetchedResultsController.sections![section]
-        return sectionInfo.numberOfObjects
+        return self.secciones.count
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
