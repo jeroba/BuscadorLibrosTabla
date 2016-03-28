@@ -147,7 +147,7 @@
         <!--Navigation Controller-->
         <scene sceneID="vFB-Mz-44p">
             <objects>
-                <navigationController id="kWr-kQ-Iqz" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="kWr-kQ-Iqz" sceneMemberID="viewController">
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="GI9-xc-qHW">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -173,10 +173,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="ISBN" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Zo4-1d-pn0">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="ISBN" textAlignment="natural" minimumFontSize="17" clearButtonMode="always" translatesAutoresizingMaskIntoConstraints="NO" id="Zo4-1d-pn0">
                                 <rect key="frame" x="93" y="103" width="188" height="30"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation" returnKeyType="search"/>
                                 <connections>
                                     <action selector="textFieldDoneEditing:" destination="Zas-Lz-SeA" eventType="editingDidEndOnExit" id="eNF-7Y-Y8C"/>
                                 </connections>
@@ -194,15 +194,15 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Xwk-cX-2Wd">
-                                <rect key="frame" x="78" y="436" width="240" height="128"/>
+                                <rect key="frame" x="78" y="436" width="240" height="177"/>
                             </imageView>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="oDD-Ks-a0x">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="oDD-Ks-a0x">
                                 <rect key="frame" x="110" y="221" width="196" height="42"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="npZ-Kh-FRV">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="npZ-Kh-FRV">
                                 <rect key="frame" x="88" y="300" width="240" height="99"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -218,7 +218,16 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" title="Buscar ISBN" id="OWe-sX-WPd">
-                        <barButtonItem key="rightBarButtonItem" title="Hecho" id="71h-Ad-tjj"/>
+                        <barButtonItem key="leftBarButtonItem" title="Cancelar" id="MxD-4X-sXQ">
+                            <connections>
+                                <segue destination="iat-OL-1nc" kind="unwind" unwindAction="cancelToBooksViewController:" id="SWX-ea-Nk8"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="Hecho" id="gBj-dj-x0G">
+                            <connections>
+                                <segue destination="iat-OL-1nc" kind="unwind" unwindAction="saveBookDetail:" id="axS-OU-1yr"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
                     <connections>
@@ -229,6 +238,7 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ANN-G4-Fty" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="iat-OL-1nc" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="1593.5" y="-630.5"/>
         </scene>
