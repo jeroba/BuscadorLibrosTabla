@@ -14,6 +14,8 @@
 		EADC80CD1CA8E8E900DE2CC6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EADC80CB1CA8E8E900DE2CC6 /* Main.storyboard */; };
 		EADC80CF1CA8E8E900DE2CC6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EADC80CE1CA8E8E900DE2CC6 /* Assets.xcassets */; };
 		EADC80D21CA8E8E900DE2CC6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EADC80D01CA8E8E900DE2CC6 /* LaunchScreen.storyboard */; };
+		EADC80DA1CA8FC1300DE2CC6 /* Modelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADC80D91CA8FC1300DE2CC6 /* Modelo.swift */; };
+		EADC80DC1CA900DC00DE2CC6 /* BusquedaISBNViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADC80DB1CA900DC00DE2CC6 /* BusquedaISBNViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		EADC80CE1CA8E8E900DE2CC6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EADC80D11CA8E8E900DE2CC6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		EADC80D31CA8E8E900DE2CC6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EADC80D91CA8FC1300DE2CC6 /* Modelo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Modelo.swift; sourceTree = "<group>"; };
+		EADC80DB1CA900DC00DE2CC6 /* BusquedaISBNViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BusquedaISBNViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +70,8 @@
 				EADC80D01CA8E8E900DE2CC6 /* LaunchScreen.storyboard */,
 				EADC80D31CA8E8E900DE2CC6 /* Info.plist */,
 				EADC80C41CA8E8E900DE2CC6 /* BuscadorLibrosTabla.xcdatamodeld */,
+				EADC80D91CA8FC1300DE2CC6 /* Modelo.swift */,
+				EADC80DB1CA900DC00DE2CC6 /* BusquedaISBNViewController.swift */,
 			);
 			path = BuscadorLibrosTabla;
 			sourceTree = "<group>";
@@ -146,6 +152,8 @@
 				EADC80C31CA8E8E900DE2CC6 /* AppDelegate.swift in Sources */,
 				EADC80C81CA8E8E900DE2CC6 /* MasterViewController.swift in Sources */,
 				EADC80CA1CA8E8E900DE2CC6 /* DetailViewController.swift in Sources */,
+				EADC80DC1CA900DC00DE2CC6 /* BusquedaISBNViewController.swift in Sources */,
+				EADC80DA1CA8FC1300DE2CC6 /* Modelo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,6 +303,7 @@
 				EADC80D81CA8E8E900DE2CC6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
