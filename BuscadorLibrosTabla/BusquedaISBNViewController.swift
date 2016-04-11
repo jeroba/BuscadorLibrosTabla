@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class BusquedaISBNViewController: UIViewController,  UITextFieldDelegate {
     
@@ -15,21 +16,20 @@ class BusquedaISBNViewController: UIViewController,  UITextFieldDelegate {
     @IBOutlet weak var autoresLibro: UITextView!
     @IBOutlet weak var portadaLibro: UIImageView!
     
+    var contexto: NSManagedObjectContext? = nil
     
     var libro = LiBroOpenLibrary()
+    var existeLibro = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
         
+        self.contexto = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
+        
         //configurarTextField()
         entradaTexto.delegate=self
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     func configurarTextField (){
@@ -63,34 +63,80 @@ class BusquedaISBNViewController: UIViewController,  UITextFieldDelegate {
         if (entradaTexto.text!.isEmpty){
             lanzarAlerta("Aviso", mensaje: "Introduzca un ISBN")
         }else{
-            let resultado = libro.obtenerDatosDeISBN(entradaTexto.text!)
-            if resultado == -1 {
-                lanzarAlerta("Aviso", mensaje: "Error en la conexión con openlibrary.org")
-            }else if resultado == -2 {
-                lanzarAlerta("Aviso", mensaje: "ISBN no encontrado")
-            }else if resultado == 0 {
-                self.tituloLibro.text=libro.titulo
-                //Borramos el contenido del cuadro de texto
-                self.autoresLibro.text=""
-                //Recorremos el array de autores y lo imprimimos con un salto de línea por cada autor
-                for i in 0..<libro.autores.count{
-                    self.autoresLibro.text = libro.autores[i] + "\r\n" + self.autoresLibro.text!
+            existeLibro = false
+            let libroEntidad = NSEntityDescription.entityForName("Libro", inManagedObjectContext: self.contexto!)
+            
+            let peticion = libroEntidad?.managedObjectModel.fetchRequestFromTemplateWithName("petLibro", substitutionVariables: ["isbn": sender.text!])
+            
+            do{
+                let libroEntidad2 = try self.contexto?.executeFetchRequest(peticion!)
+                if libroEntidad2?.count > 0{
+                    existeLibro = true
+                    
+                    for libroEntidad3 in libroEntidad2!{
+                        if entradaTexto.text! == libroEntidad3.valueForKey("isbn") as! String{
+                            self.tituloLibro.text = libroEntidad3.valueForKey("titulo") as! String
+                            
+                            let autoresEntidad = libroEntidad3.valueForKey("tiene") as! Set<NSObject>
+                            
+                            var autores = [String]()
+                            for autorEntidad2 in autoresEntidad{
+                                let autor = autorEntidad2.valueForKey("nombre") as! String
+                                autores.append(autor)
+                            }
+                            
+                            //Borramos el contenido del cuadro de texto
+                            self.autoresLibro.text=""
+                            //Recorremos el array de autores y lo imprimimos con un salto de línea por cada autor
+                            for i in 0..<autores.count{
+                                self.autoresLibro.text = autores[i] + "\r\n" + self.autoresLibro.text!
+                            }
+                            //Descargamos la imagen de la portada
+                            let portada = NSURL(string: libroEntidad3.valueForKey("portada") as! String)
+                            let imagen:NSData? = NSData(contentsOfURL: portada!)
+                            //convertimos el objeto NSData descargado en objeto UIImage y se lo entregamos al contenedor Image View
+                            self.portadaLibro.image = UIImage(data: imagen!)
+                            self.portadaLibro.sizeToFit()
+                            //Hacemos visible el contenedor si es que estaba oculto
+                            self.portadaLibro.hidden = false
+                        }
+                    }
                 }
-                //Descargamos la imagen de la portada
-                let imagen:NSData? = NSData(contentsOfURL: libro.portada!)
-                //convertimos el objeto NSData descargado en objeto UIImage y se lo entregamos al contenedor Image View
-                self.portadaLibro.image = UIImage(data: imagen!)
-                self.portadaLibro.sizeToFit()
-                //Hacemos visible el contenedor si es que estaba oculto
-                self.portadaLibro.hidden = false
-            }else if resultado == 1{
-                self.tituloLibro.text=libro.titulo
-                self.autoresLibro.text=""
-                for i in 0..<libro.autores.count{
-                    self.autoresLibro.text = libro.autores[i] + "\r\n" + self.autoresLibro.text!
+                
+            }catch{
+                
+            }
+            
+            if existeLibro == false{
+                let resultado = libro.obtenerDatosDeISBN(entradaTexto.text!)
+                if resultado == -1 {
+                    lanzarAlerta("Aviso", mensaje: "Error en la conexión con openlibrary.org")
+                }else if resultado == -2 {
+                    lanzarAlerta("Aviso", mensaje: "ISBN no encontrado")
+                }else if resultado == 0 {
+                    self.tituloLibro.text=libro.titulo
+                    //Borramos el contenido del cuadro de texto
+                    self.autoresLibro.text=""
+                    //Recorremos el array de autores y lo imprimimos con un salto de línea por cada autor
+                    for i in 0..<libro.autores.count{
+                        self.autoresLibro.text = libro.autores[i] + "\r\n" + self.autoresLibro.text!
+                    }
+                    //Descargamos la imagen de la portada
+                    let imagen:NSData? = NSData(contentsOfURL: libro.portada!)
+                    //convertimos el objeto NSData descargado en objeto UIImage y se lo entregamos al contenedor Image View
+                    self.portadaLibro.image = UIImage(data: imagen!)
+                    self.portadaLibro.sizeToFit()
+                    //Hacemos visible el contenedor si es que estaba oculto
+                    self.portadaLibro.hidden = false
+                }else if resultado == 1{
+                    self.tituloLibro.text=libro.titulo
+                    self.autoresLibro.text=""
+                    for i in 0..<libro.autores.count{
+                        self.autoresLibro.text = libro.autores[i] + "\r\n" + self.autoresLibro.text!
+                    }
+                    //ocultamos el contenedor Image View en este caso ya que no existe portada
+                    self.portadaLibro.hidden = true
                 }
-                //ocultamos el contenedor Image View en este caso ya que no existe portada
-                self.portadaLibro.hidden = true
             }
         }
         //ocultar teclado tras pulsar Search

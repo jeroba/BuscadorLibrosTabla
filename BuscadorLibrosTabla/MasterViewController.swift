@@ -16,10 +16,46 @@ class MasterViewController: UITableViewController {
     var managedObjectContext: NSManagedObjectContext? = nil
     
     var libros = [LiBroOpenLibrary]()
+    var contexto: NSManagedObjectContext? = nil
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        self.contexto = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
+        
+        let libroEntidad = NSEntityDescription.entityForName("Libro", inManagedObjectContext: contexto!)
+        
+        let peticion = libroEntidad?.managedObjectModel.fetchRequestTemplateForName("petLibros")
+        
+        do{
+            let librosEntidad = try contexto?.executeFetchRequest(peticion!)
+            
+            for libroEntidad2 in librosEntidad! {
+                let isbn = libroEntidad2.valueForKey("isbn") as! String
+                let titulo = libroEntidad2.valueForKey("titulo") as! String
+                let autoresEntidad = libroEntidad2.valueForKey("tiene") as! Set<NSObject>
+                
+                let portada = libroEntidad2.valueForKey("portada") as! String
+                
+                var autores = [String()]
+                for autorEntidad2 in autoresEntidad{
+                    let autor = autorEntidad2.valueForKey("nombre") as! String
+                    autores.append(autor)
+                }
+                
+                let libro = LiBroOpenLibrary()
+                libro.isbn = isbn
+                libro.titulo = titulo
+                libro.autores = autores
+                libro.portada = NSURL(string: portada)
+                
+                self.libros.append(libro)
+            }
+        }catch{
+            
+        }
+        
         if let split = self.splitViewController {
             let controllers = split.viewControllers
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
@@ -77,17 +113,48 @@ class MasterViewController: UITableViewController {
         print ("Se ha cancelado la búsqueda")
     }
     
+    func crearAutoresEntidad(autores : [String]) -> Set<NSObject>{
+        var entidades = Set<NSObject>()
+        
+        for autor in autores{
+            let autorEntidad = NSEntityDescription.insertNewObjectForEntityForName("Autor", inManagedObjectContext: self.contexto!)
+            
+            autorEntidad.setValue(autor, forKey: "nombre")
+            entidades.insert(autorEntidad)
+        }
+        
+        return entidades
+    }
+    
     @IBAction func saveBookDetail(segue:UIStoryboardSegue) {
         if let busquedaISBNViewController = segue.sourceViewController as? BusquedaISBNViewController {
-            //añadir un nuevo libro al array
-            let libro = busquedaISBNViewController.libro
-            if libro.titulo != "" {
-                libros.append(libro)
-                //actualizar la vista de la tabla
-                let indexPath = NSIndexPath(forRow: libros.count-1, inSection: 0)
-                tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+            if busquedaISBNViewController.existeLibro == false{
+                //añadir un nuevo libro al array
+                let libro = busquedaISBNViewController.libro
+                if libro.titulo != "" {
+                    let nuevoLibroEntidad = NSEntityDescription.insertNewObjectForEntityForName("Libro", inManagedObjectContext: self.contexto!)
+                    
+                    nuevoLibroEntidad.setValue(libro.isbn, forKey: "isbn")
+                    nuevoLibroEntidad.setValue(libro.titulo, forKey: "titulo")
+                    
+                    nuevoLibroEntidad.setValue(libro.portada!.absoluteString, forKey: "portada")
+                    
+                    nuevoLibroEntidad.setValue(crearAutoresEntidad(libro.autores), forKey: "tiene")
+                    
+                    do{
+                        try self.contexto?.save()
+                    }catch{
+                        
+                    }
+                    libros.append(libro)
+                    //actualizar la vista de la tabla
+                    let indexPath = NSIndexPath(forRow: libros.count-1, inSection: 0)
+                    tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+                }else{
+                    print ("No se ha añadido ningún libro a la lista")
+                }
             }else{
-                print ("No se ha añadido ningún libro a la lista")
+                print ("El libro ya existe en la lista.")
             }
         }
         

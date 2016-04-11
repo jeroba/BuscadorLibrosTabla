@@ -13,6 +13,7 @@ class LiBroOpenLibrary {
     var titulo = String()
     var autores = [String()]
     var portada = NSURL?()
+    var isbn = String()
     
     //Función creada para la primera versión
     func llamadaSincronaOpenLibrary (isbn: String)->String{
@@ -59,6 +60,7 @@ class LiBroOpenLibrary {
                     let dico1 = json as! NSDictionary
                     let dico2 = dico1["ISBN:\(isbn)"] as! NSDictionary
                     self.titulo = dico2["title"] as! String
+                    self.isbn = isbn
                     //El apartado authors está construido como un array de diccionarios
                     let dico3 = dico2["authors"] as? [NSDictionary]
                     //Tras comprobar que hay libros sin el campo author registrado, comprobamos que no sea nulo
